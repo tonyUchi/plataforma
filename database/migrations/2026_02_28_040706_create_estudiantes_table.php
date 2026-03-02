@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('estudiantes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('carrera_id')->constrained()->onDelete('cascade');
+            $table->foreignId('carrera_id')->constrained();
             $table->string('numero_control')->unique();
             $table->string('nombre');
             $table->string('apellido_paterno');
             $table->string('apellido_materno');
+            $table->string('email')->unique();
+            $table->string('password');
             $table->string('campus');
             $table->string('documento_registro_path')->nullable();
             $table->boolean('validado_por_admin')->default(false);

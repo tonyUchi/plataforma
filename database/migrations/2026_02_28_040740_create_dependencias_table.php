@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('dependencias', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('rfc')->unique();
             $table->string('nombre_completo');
             $table->string('direccion');
             $table->string('telefono');
+            $table->string('email')->unique();
+            $table->string('password');
             $table->string('sector');
             $table->string('nombre_responsable');
             $table->string('cargo_responsable');
