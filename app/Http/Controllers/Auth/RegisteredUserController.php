@@ -3,48 +3,62 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Estudiante;
+use App\Models\Dependencia;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
-    public function create(): View
+    public function store(Request $request)
     {
-        return view('auth.register');
-    }
+        // 1. Validaciones base (comunes para ambos)
+        $commonRules = [
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:estudiantes', 'unique:dependencias'],
+            'password' => ['required', 'confirmed', 'min:8'],
+            'tipo_usuario' => ['required', 'in:estudiante,dependencia'],
+        ];
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        // 2. Lógica según el tipo de usuario
+        if ($request->tipo_usuario === 'estudiante') {
+            $request->validate(array_merge($commonRules, [
+                'nombre' => ['required', 'string'],
+                'numero_control' => ['required', 'unique:estudiantes'],
+                'carrera_id' => ['required', 'exists:carreras,id'],
+            ]));
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+            $user = Estudiante::create([
+                'nombre' => $request->nombre,
+                'apellido_paterno' => $request->apellido_paterno,
+                'apellido_materno' => $request->apellido_materno,
+                'numero_control' => $request->numero_control,
+                'email' => $request->email,
+                'carrera_id' => $request->carrera_id,
+                'password' => Hash::make($request->password),
+            ]);
 
-        event(new Registered($user));
+            Auth::guard('estudiante')->login($user);
+            return redirect('/estudiante/dashboard');
 
-        Auth::login($user);
+        } else {
+            $request->validate(array_merge($commonRules, [
+                'nombre_institucion' => ['required', 'string'],
+                'rfc' => ['required', 'unique:dependencias'],
+                'nombre_responsable' => ['required'],
+            ]));
 
-        return redirect(route('dashboard', absolute: false));
+            $user = Dependencia::create([
+                'nombre_institucion' => $request->nombre_institucion,
+                'rfc' => $request->rfc,
+                'nombre_responsable' => $request->nombre_responsable,
+                'email' => $request->email,
+                'telefono' => $request->telefono,
+                'password' => Hash::make($request->password),
+            ]);
+
+            Auth::guard('dependencia')->login($user);
+            return redirect('/dependencia/dashboard');
+        }
     }
 }

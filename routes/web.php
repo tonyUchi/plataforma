@@ -1,20 +1,42 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\MultiAuthController;
 
+// --- RUTAS PÚBLICAS ---
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/login', [MultiAuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [MultiAuthController::class, 'login']);
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// --- RUTAS PROTEGIDAS ESTUDIANTES ---
+Route::middleware(['auth:estudiante'])->group(function () {
+    
+    Route::get('/estudiante/dashboard', function () {
+        return view('estudiante.dashboard');
+    })->name('estudiante.dashboard');
+
+    // ESTA ES LA RUTA QUE TE FALTABA Y POR LA QUE SALE EL ERROR:
+    Route::post('/estudiante/logout', [MultiAuthController::class, 'logout'])
+        ->name('estudiante.logout'); 
 });
 
-require __DIR__.'/auth.php';
+// --- RUTAS PROTEGIDAS DEPENDENCIAS ---
+Route::middleware(['auth:dependencia'])->group(function () {
+    
+    Route::get('/dependencia/dashboard', function () {
+        return view('dependencia.dashboard');
+    })->name('dependencia.dashboard');
+
+    Route::post('/dependencia/logout', [MultiAuthController::class, 'logout'])
+        ->name('dependencia.logout');
+});
+
+// --- RUTAS PROTEGIDAS ADMIN (Web Guard) ---
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
+});

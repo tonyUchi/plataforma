@@ -3,45 +3,40 @@
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
-        @csrf
+    @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+    <label>¿Quién eres?</label>
+    <select name="tipo_usuario" id="tipo_usuario" onchange="actualizarPlaceholder()">
+        <option value="admin">Administrador</option>
+        <option value="estudiante">Estudiante</option>
+        <option value="dependencia">Dependencia/Empresa</option>
+    </select>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+    <label id="label_identificacion">Correo Electrónico</label>
+    <input type="text" name="login_field" id="login_field" required>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+    <label>Contraseña</label>
+    <input type="password" name="password" required>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+    <button type="submit">Entrar</button>
+</form>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+<script>
+function actualizarPlaceholder() {
+    const tipo = document.getElementById('tipo_usuario').value;
+    const label = document.getElementById('label_identificacion');
+    const input = document.getElementById('login_field');
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
+    if (tipo === 'admin') {
+        label.innerText = 'Correo Electrónico';
+        input.placeholder = 'ejemplo@correo.com';
+    } else if (tipo === 'estudiante') {
+        label.innerText = 'Número de Control';
+        input.placeholder = '20210543';
+    } else {
+        label.innerText = 'RFC de la Empresa';
+        input.placeholder = 'ABC123456XYZ';
+    }
+}
+</script>
 </x-guest-layout>
