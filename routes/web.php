@@ -5,8 +5,9 @@ use App\Http\Controllers\Auth\MultiAuthController;
 
 // --- RUTAS PÚBLICAS ---
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('bienvenida');
 });
+
 
 Route::get('/login', [MultiAuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [MultiAuthController::class, 'login']);
