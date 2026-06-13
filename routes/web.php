@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\MultiAuthController;
+use App\Http\Controllers\Estudiante\RegisterController;
 
 // --- RUTAS PÚBLICAS ---
 Route::get('/', function () {
@@ -11,6 +12,14 @@ Route::get('/', function () {
 
 Route::get('/login', [MultiAuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [MultiAuthController::class, 'login']);
+
+// NUEVAS: Registro de Estudiantes
+Route::get('/registro/estudiante', [RegisterController::class, 'showRegisterForm'])->name('registro.estudiante');
+Route::post('/registro/estudiante', [RegisterController::class, 'register']);
+
+// NUEVAS: Registro de Dependencias
+Route::get('/registro/dependencia', [RegisterController::class, 'showDependenciaRegisterForm'])->name('registro.dependencia');
+Route::post('/registro/dependencia', [RegisterController::class, 'registerDependencia']);
 
 // --- RUTAS PROTEGIDAS ESTUDIANTES ---
 Route::middleware(['auth:estudiante'])->group(function () {
